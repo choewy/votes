@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { TransactionalService } from '@core/database';
-import { Brackets, EntityManager, In, Repository } from 'typeorm';
+import { Brackets, EntityManager, Repository } from 'typeorm';
 
 import { OutboxEventType, OutboxStatus } from './enums';
 import { OutboxEntity } from './outbox.entity';
@@ -29,56 +29,93 @@ export class OutboxService extends TransactionalService<OutboxEntity> {
     });
   }
 
-  async findByDispatchTargets(em?: EntityManager) {
-    return this.getRepository(em)
+  async findByDispatchTargets(size = 100, em?: EntityManager) {
+    const repository = this.getRepository(em);
+
+    const rowsByPending = await repository
       .createQueryBuilder('o')
       .setLock('pessimistic_write')
+      .setOnLocked('skip_locked')
       .where('o.status = :pending', { pending: OutboxStatus.PENDING })
-      .orWhere(
-        new Brackets((qb) =>
-          qb
-            .where('o.status = :processing', {
-              processing: OutboxStatus.PROCESSING,
-            })
-            .andWhere('o.lockedUntil IS NOT NULL')
-            .andWhere('o.lockedUntil < NOW()'),
-        ),
-      )
       .orderBy('o.createdAt', 'ASC')
-      .limit(100)
+      .limit(size)
       .getMany();
+
+    const rowsByExpiredProcessing = await repository
+      .createQueryBuilder('o')
+      .setLock('pessimistic_write')
+      .setOnLocked('skip_locked')
+      .where('o.status = :processing', { processing: OutboxStatus.PROCESSING })
+      .andWhere(new Brackets((qb) => qb.where('o.lockedUntil IS NULL').orWhere('o.lockedUntil < NOW()')))
+      .orderBy('o.createdAt', 'ASC')
+      .limit(size)
+      .getMany();
+
+    const map = new Map<string, OutboxEntity>();
+
+    for (const row of rowsByPending) {
+      map.set(row.id, row);
+    }
+
+    for (const row of rowsByExpiredProcessing) {
+      map.set(row.id, row);
+    }
+
+    return [...map.values()].sort((x, y) => x.createdAt.getTime() - y.createdAt.getTime()).slice(0, size);
   }
 
-  async markProcessing(id: string, em?: EntityManager) {
-    await this.getRepository(em).update(
-      { id },
-      {
+  async findByLockedBy(lockedBy: string, size = 100, em?: EntityManager) {
+    return this.getRepository(em).find({
+      where: {
         status: OutboxStatus.PROCESSING,
-        lockedBy: process.pid,
-        lockedUntil: () => `NOW() + INTERVAL '5 seconds'`,
-        updatedAt: () => 'NOW()',
+        lockedBy,
       },
-    );
+      order: { createdAt: 'ASC' },
+      take: size,
+    });
   }
-  async markProcessingMany(ids: string[], em?: EntityManager) {
+
+  async deleteByPublishedAfter7Days(em?: EntityManager) {
+    await this.getRepository(em)
+      .createQueryBuilder('o')
+      .delete()
+      .where('o.status = :status', { status: OutboxStatus.PUBLISHED })
+      .andWhere(`o.createdAt < NOW() - INTERVAL '7 days'`)
+      .execute();
+  }
+
+  async markProcessingMany(ids: string[], lockedBy: string, em?: EntityManager) {
     if (ids.length === 0) {
       return;
     }
 
-    await this.getRepository(em).update(
-      { id: In(ids) },
-      {
+    const repository = this.getRepository(em);
+
+    await repository
+      .createQueryBuilder()
+      .update(OutboxEntity)
+      .set({
         status: OutboxStatus.PROCESSING,
-        lockedBy: process.pid,
-        lockedUntil: () => `NOW() + INTERVAL '5 seconds'`,
+        lockedBy,
+        lockedUntil: () => `NOW() + INTERVAL '60 seconds'`,
         updatedAt: () => 'NOW()',
-      },
-    );
+      })
+      .where('id IN (:...ids)', { ids })
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where('status = :pending', { pending: OutboxStatus.PENDING }).orWhere(
+            new Brackets((qb) => {
+              qb.where('status = :processing', { processing: OutboxStatus.PROCESSING }).andWhere('(lockedUntil IS NULL OR lockedUntil < NOW())');
+            }),
+          );
+        }),
+      )
+      .execute();
   }
 
-  async markPublished(id: string, em?: EntityManager) {
+  async markPublished(id: string, lockedBy: string, em?: EntityManager) {
     await this.getRepository(em).update(
-      { id },
+      { id, lockedBy },
       {
         status: OutboxStatus.PUBLISHED,
         lockedBy: null,
@@ -90,9 +127,9 @@ export class OutboxService extends TransactionalService<OutboxEntity> {
     );
   }
 
-  async markFailed(id: string, error: string, em?: EntityManager) {
+  async markFailed(id: string, lockedBy: string, error: string, em?: EntityManager) {
     await this.getRepository(em).update(
-      { id },
+      { id, lockedBy },
       {
         status: OutboxStatus.PENDING,
         lockedBy: null,
