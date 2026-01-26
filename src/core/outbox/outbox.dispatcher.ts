@@ -3,13 +3,12 @@ import { Cron } from '@nestjs/schedule';
 
 import { Queue } from 'bullmq';
 import { Brackets, DataSource, In } from 'typeorm';
-import { v4 } from 'uuid';
 
 import { OutboxEventType, OutboxStatus } from './enums';
 import { OutboxEntity } from './outbox.entity';
 
 export class OutboxDispatcher {
-  private readonly workerId = `dispatcher:${process.pid}:${v4()}`;
+  private readonly workerId = `dispatcher:${process.pid}`;
 
   constructor(
     private readonly dataSource: DataSource,

@@ -31,7 +31,7 @@ export class OutboxEntity {
   @Column({ type: 'timestamptz', nullable: true })
   lockedUntil: Date | null;
 
-  @Column({ type: 'varchar', nullable: true })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   lockedBy: Date | null;
 
   @CreateDateColumn({ type: 'timestamptz' })
