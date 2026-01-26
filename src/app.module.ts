@@ -1,11 +1,9 @@
 import { Module } from '@nestjs/common';
-
-import { RedisModule } from '@libs/redis';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { Configuration, ConfigurationModule } from './configs';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { Configuration, ConfigurationModule, RedisModule } from './core';
 
 @Module({
   imports: [

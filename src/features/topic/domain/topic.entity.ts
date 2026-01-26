@@ -6,7 +6,7 @@ import { OptionEntity } from './option.entity';
 export class TopicEntity {
   public static readonly NAME = 'topic';
 
-  @PrimaryGeneratedColumn({ type: 'bigint' })
+  @PrimaryGeneratedColumn({ type: 'bigint', primaryKeyConstraintName: 'TOPIC_PK' })
   readonly id: string;
 
   @Column({ type: 'varchar', length: 500 })

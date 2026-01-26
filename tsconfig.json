@@ -22,12 +22,10 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@libs": ["src/libs"],
-      "@libs/*": ["src/libs/*"],
-      "@configs": ["src/configs"],
-      "@configs/*": ["src/configs/*"],
-      "@entities": ["src/entities"],
-      "@entities/*": ["src/entities/*"]
+      "@core": ["src/core"],
+      "@core/*": ["src/core/*"],
+      "@features": ["src/features"],
+      "@features/*": ["src/features/*"]
     }
   }
 }
