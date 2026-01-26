@@ -2,32 +2,45 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Cron } from '@nestjs/schedule';
 
 import { Queue } from 'bullmq';
-import { DataSource, In } from 'typeorm';
+import { Brackets, DataSource, In } from 'typeorm';
+import { v4 } from 'uuid';
 
 import { OutboxEventType, OutboxStatus } from './enums';
 import { OutboxEntity } from './outbox.entity';
 
 export class OutboxDispatcher {
+  private readonly workerId = `dispatcher:${process.pid}:${v4()}`;
+
   constructor(
     private readonly dataSource: DataSource,
     @InjectQueue('topic')
     private readonly topicQueue: Queue,
   ) {}
 
-  @Cron('*/1 * * * * *')
+  @Cron('*/3 * * * * *')
   async dispatch(): Promise<void> {
     const events = await this.dataSource.transaction(async (em) => {
       const repository = em.getRepository(OutboxEntity);
-      const rows = await repository.find({
-        where: { status: OutboxStatus.PENDING },
-        order: { createdAt: 'ASC' },
-        lock: { mode: 'pessimistic_write' },
-        take: 100,
-      });
+      const rows = await repository
+        .createQueryBuilder('o')
+        .setLock('pessimistic_write')
+        .where('o.status = :pending', { pending: 'PENDING' })
+        .orWhere(new Brackets((qb) => qb.where('o.status = :processing', { processing: 'PROCESSING' }).andWhere('o.lockedUntil IS NOT NULL').andWhere('o.lockedUntil < NOW()')))
+        .orderBy('o.createdAt', 'ASC')
+        .limit(100)
+        .getMany();
 
       if (rows.length > 0) {
         const ids = rows.map((r) => r.id);
-        await repository.update({ id: In(ids) }, { status: OutboxStatus.PROCESSING, updatedAt: () => 'NOW()' });
+        await repository.update(
+          { id: In(ids) },
+          {
+            status: OutboxStatus.PROCESSING,
+            lockedBy: this.workerId,
+            lockedUntil: () => `NOW() + INTERVAL '5 seconds'`,
+            updatedAt: () => 'NOW()',
+          },
+        );
       }
 
       return rows;
@@ -53,19 +66,25 @@ export class OutboxDispatcher {
         { id: event.id },
         {
           status: OutboxStatus.PUBLISHED,
-          lastAttemptAt: new Date(),
+          lockedBy: null,
+          lockedUntil: null,
           lastError: null,
+          lastAttemptAt: () => 'NOW()',
+          updatedAt: () => 'NOW()',
         },
       );
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
       await this.dataSource.getRepository(OutboxEntity).update(
         { id: event.id },
         {
           status: OutboxStatus.PENDING,
-          attempts: () => 'attempts + 1',
-          lastAttemptAt: new Date(),
+          lockedBy: null,
+          lockedUntil: null,
           lastError: message,
+          attempts: () => 'attempts + 1',
+          lastAttemptAt: () => 'NOW()',
+          updatedAt: () => 'NOW()',
         },
       );
     }
