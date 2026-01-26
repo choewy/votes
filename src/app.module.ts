@@ -1,13 +1,21 @@
 import { Module } from '@nestjs/common';
 
+import { RedisModule } from '@libs/redis';
+
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { Configuration, ConfigurationModule } from './configs';
-import { RedisModule } from '@libs/redis';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
   imports: [
     ConfigurationModule.forRoot(),
+    TypeOrmModule.forRootAsync({
+      inject: [Configuration],
+      useFactory(configuration: Configuration) {
+        return configuration.typeormModuleOptions;
+      },
+    }),
     RedisModule.forRootAsync({
       inject: [Configuration],
       useFactory(configuration: Configuration) {
