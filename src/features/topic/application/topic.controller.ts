@@ -36,6 +36,7 @@ export class TopicController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiNoContentResponse()
   participateTopic(@Param('id', new ParseIntStringPipe()) id: string) {
+    // TODO
     return id;
   }
 
@@ -43,6 +44,7 @@ export class TopicController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiNoContentResponse()
   updateTopic(@Param('id', new ParseIntStringPipe()) id: string) {
+    // TODO
     return id;
   }
 }

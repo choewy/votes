@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 
+import path from 'node:path';
 import { RedisModuleOptions } from '@core/redis';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 
@@ -33,7 +34,7 @@ export class Configuration {
       database: this.configService.getOrThrow<string>('POSTGRES_DATABASE'),
       synchronize: this.isLocal,
       namingStrategy: new SnakeNamingStrategy(),
-      autoLoadEntities: true,
+      entities: [path.resolve(process.cwd(), 'dist', '**', '*', 'domain', '**', '*.entity.js')],
       logging: true,
     };
   }

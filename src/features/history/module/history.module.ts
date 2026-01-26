@@ -4,9 +4,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { HistoryEntity } from '../domain';
 import { HistoryService } from '../services';
 
+const HistoryModuleProviders = [HistoryService];
+
 @Module({
   imports: [TypeOrmModule.forFeature([HistoryEntity])],
-  providers: [HistoryService],
-  exports: [HistoryService],
+  providers: HistoryModuleProviders,
+  exports: HistoryModuleProviders,
 })
 export class HistoryModule {}
