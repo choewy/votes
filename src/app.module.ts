@@ -1,8 +1,10 @@
-import { Module } from '@nestjs/common';
+import { Module, ValidationPipe } from '@nestjs/common';
+import { APP_PIPE } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { Configuration, ConfigurationModule } from '@core/configs';
 import { RedisModule } from '@core/redis';
+import { TopicHttpModule } from '@features/topic/application';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -22,8 +24,21 @@ import { AppService } from './app.service';
         return configuration.redisModuleOptions;
       },
     }),
+    TopicHttpModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_PIPE,
+      useFactory() {
+        return new ValidationPipe({
+          whitelist: true,
+          forbidNonWhitelisted: true,
+          transform: true,
+        });
+      },
+    },
+  ],
 })
 export class AppModule {}
