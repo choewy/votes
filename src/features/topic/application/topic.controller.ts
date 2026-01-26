@@ -1,7 +1,7 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { ApiCreatedResponse } from '@nestjs/swagger';
 
-import { CreateTopicUseCase } from '@applications/topic/usecases';
+import { CreateTopicUseCase } from '@application/topic/usecases';
 import { Serialize } from '@core/interceptors';
 
 import { CreateTopicRequestDTO, TopicResponseDTO } from '../dto';

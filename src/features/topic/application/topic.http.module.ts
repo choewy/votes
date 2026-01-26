@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 
-import { TopicApplicationModule } from '@applications/topic/module';
+import { TopicApplicationModule } from '@application/topic/module';
 
 import { TopicModule } from '../module';
 

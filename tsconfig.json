@@ -26,8 +26,8 @@
       "@core/*": ["src/core/*"],
       "@features": ["src/features"],
       "@features/*": ["src/features/*"],
-      "@applications": ["src/applications"],
-      "@applications/*": ["src/applications/*"]
+      "@application": ["src/application"],
+      "@application/*": ["src/application/*"]
     }
   }
 }
