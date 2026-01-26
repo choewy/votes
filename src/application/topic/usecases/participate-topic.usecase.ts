@@ -23,5 +23,7 @@ export class ParticipateTopicUseCase {
 
     await this.historyService.throwIfExistsByUserIdAndTopicId(command.userId, command.topicId);
     await this.historyService.insert(command.userId, command.topicId, command.optionId);
+
+    // TODO produce Queue
   }
 }
