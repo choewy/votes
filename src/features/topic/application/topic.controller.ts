@@ -1,18 +1,21 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post } from '@nestjs/common';
 import { ApiCreatedResponse, ApiNoContentResponse, ApiOkResponse } from '@nestjs/swagger';
 
-import { CreateTopicUseCase } from '@application/topic/usecases';
+import { CreateTopicUseCase, ParticipateTopicUseCase } from '@application/topic/usecases';
+import { ContextService } from '@core/context';
 import { Serialize } from '@core/interceptors';
 import { ParseIntStringPipe } from '@core/pipes';
 
-import { CreateTopicRequestDTO, TopicResponseDTO } from '../dto';
+import { CreateTopicRequestDTO, ParticipateTopicRequestDTO, TopicResponseDTO } from '../dto';
 import { TopicService } from '../services';
 
 @Controller('topics')
 export class TopicController {
   constructor(
+    private readonly contextService: ContextService,
     private readonly topicService: TopicService,
     private readonly createTopicUseCase: CreateTopicUseCase,
+    private readonly participateTopicUseCase: ParticipateTopicUseCase,
   ) {}
 
   @Get(':id')
@@ -35,9 +38,12 @@ export class TopicController {
   @Post(':id/participate')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiNoContentResponse()
-  participateTopic(@Param('id', new ParseIntStringPipe()) id: string) {
-    // TODO
-    return id;
+  participateTopic(@Param('id', new ParseIntStringPipe()) id: string, @Body() body: ParticipateTopicRequestDTO) {
+    return this.participateTopicUseCase.execute({
+      userId: this.contextService.id,
+      topicId: id,
+      optionId: body.optionId,
+    });
   }
 
   @Patch(':id')

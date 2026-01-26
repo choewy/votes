@@ -20,6 +20,16 @@ export class TopicService extends TransactionalService<TopicEntity> {
     return this.getRepository(em).save({ title });
   }
 
+  async findByIdOrThrow(id: string, em?: EntityManager) {
+    const topic = await this.getRepository(em).findOneBy({ id });
+
+    if (!topic) {
+      throw new TopicNotFoundException(id);
+    }
+
+    return topic;
+  }
+
   async findByIdWithOptionsOrThrow(id: string, em?: EntityManager) {
     const topic = await this.getRepository(em).findOne({
       relations: { options: true },

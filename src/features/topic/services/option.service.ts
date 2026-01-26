@@ -5,6 +5,7 @@ import { TransactionalService } from '@core/database';
 import { EntityManager, Repository } from 'typeorm';
 
 import { OptionEntity } from '../domain';
+import { OptionNotFoundException } from '../exceptions';
 
 @Injectable()
 export class OptionService extends TransactionalService<OptionEntity> {
@@ -17,5 +18,25 @@ export class OptionService extends TransactionalService<OptionEntity> {
 
   async insertBulk(topicId: string, values: string[], em?: EntityManager) {
     return this.getRepository(em).save(values.map((value) => ({ value, topicId })));
+  }
+
+  async findByIdOrThrow(id: string, em?: EntityManager) {
+    const option = await this.getRepository(em).findOneBy({ id });
+
+    if (!option) {
+      throw new OptionNotFoundException(id);
+    }
+
+    return option;
+  }
+
+  async findByIdAndTopicIdOrThrow(id: string, topicId: string, em?: EntityManager) {
+    const option = await this.getRepository(em).findOneBy({ id, topicId });
+
+    if (!option) {
+      throw new OptionNotFoundException(id, topicId);
+    }
+
+    return option;
   }
 }
