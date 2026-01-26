@@ -1,3 +1,4 @@
+import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { APP_FILTER, APP_PIPE } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -5,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Configuration, ConfigurationModule } from '@core/configs';
 import { ContextModule } from '@core/context';
 import { HttpExceptionFilter } from '@core/filters';
+import { OutboxCoreModule } from '@core/outbox';
 import { VALIDATION_PIPE } from '@core/pipes';
 import { RedisModule } from '@core/redis';
 import { TopicHttpModule } from '@features/topic/application';
@@ -28,6 +30,15 @@ import { AppService } from './app.service';
         return configuration.redisModuleOptions;
       },
     }),
+    BullModule.forRootAsync({
+      inject: [Configuration],
+      useFactory(configuration: Configuration) {
+        return {
+          connection: configuration.redisModuleOptions,
+        };
+      },
+    }),
+    OutboxCoreModule,
     TopicHttpModule,
   ],
   controllers: [AppController],

@@ -1,19 +1,26 @@
 import { OptionEntity, TopicEntity } from '@features/topic/domain';
 import { UserEntity } from '@features/user/domain';
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Unique } from 'typeorm';
 
 @Entity({ name: HistoryEntity.NAME })
+@Unique('HISTORY_UNIQUE_KEY', ['userId', 'topicId'])
 export class HistoryEntity {
   public static readonly NAME = 'history';
 
-  @PrimaryColumn({ type: 'bigint', primaryKeyConstraintName: 'HISTORY_PK' })
+  @PrimaryGeneratedColumn('uuid', { primaryKeyConstraintName: 'HISTORY_PK' })
+  readonly id: string;
+
+  @Column({ type: 'bigint' })
   userId: string;
 
-  @PrimaryColumn({ type: 'bigint', primaryKeyConstraintName: 'HISTORY_PK' })
+  @Column({ type: 'bigint' })
   topicId: string;
 
   @Column({ type: 'bigint', nullable: true })
   optionId: string | null;
+
+  @Column({ type: 'boolean', default: false })
+  isCounted: boolean;
 
   @CreateDateColumn({ type: 'timestamptz' })
   readonly createdAt: Date;

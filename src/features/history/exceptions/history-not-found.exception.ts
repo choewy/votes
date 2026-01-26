@@ -1,0 +1,12 @@
+import { HttpStatus } from '@nestjs/common';
+
+import { DomainException } from '@core/exceptions';
+
+export class HistoryNotFoundException extends DomainException {
+  constructor(
+    public readonly userId: string,
+    public readonly topicId: string,
+  ) {
+    super('HISTORY_NOT_FOUND', HttpStatus.NOT_FOUND, 'History not found', { userId, topicId });
+  }
+}
