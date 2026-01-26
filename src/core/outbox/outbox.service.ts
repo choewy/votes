@@ -89,9 +89,7 @@ export class OutboxService extends TransactionalService<OutboxEntity> {
       return;
     }
 
-    const repository = this.getRepository(em);
-
-    await repository
+    await this.getRepository(em)
       .createQueryBuilder()
       .update(OutboxEntity)
       .set({
