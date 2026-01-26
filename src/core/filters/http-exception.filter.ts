@@ -1,5 +1,6 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from '@nestjs/common';
 
+import { DomainException } from '@core/exceptions';
 import { Request, Response } from 'express';
 
 type HttpExceptionResponse =
@@ -27,8 +28,20 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const res = ctx.getResponse<Response>();
     const req = ctx.getRequest<Request>();
 
-    const isHttpException = e instanceof HttpException;
+    if (e instanceof DomainException) {
+      res.status(e.statusCode).json({
+        statusCode: e.statusCode,
+        code: e.code,
+        message: e.message,
+        details: e.details,
+        path: req.url,
+        timestamp: new Date().toISOString(),
+      });
 
+      return;
+    }
+
+    const isHttpException = e instanceof HttpException;
     const status = isHttpException ? e.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
 
     if (!isHttpException) {

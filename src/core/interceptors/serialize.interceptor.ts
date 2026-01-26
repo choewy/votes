@@ -15,12 +15,14 @@ export class SerializeInterceptor implements NestInterceptor {
               plainToInstance(this.dto, item, {
                 excludeExtraneousValues: true,
                 enableImplicitConversion: true,
+                enableCircularCheck: true,
                 excludePrefixes: ['__'],
               }),
             )
           : plainToInstance(this.dto, data, {
               excludeExtraneousValues: true,
               enableImplicitConversion: true,
+              enableCircularCheck: true,
               excludePrefixes: ['__'],
             });
       }),

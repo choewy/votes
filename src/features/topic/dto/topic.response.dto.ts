@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { Expose } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 
 import { TopicOptionResponseDTO } from './topic-option.response.dto';
 
@@ -10,6 +10,7 @@ export class TopicResponseDTO {
   title: string;
 
   @ApiProperty({ type: TopicOptionResponseDTO, isArray: true })
+  @Type(() => TopicOptionResponseDTO)
   @Expose()
   options: TopicOptionResponseDTO[];
 

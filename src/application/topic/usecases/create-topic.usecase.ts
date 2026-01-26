@@ -18,7 +18,7 @@ export class CreateTopicUseCase {
       const topic = await this.topicService.insert(command.title, em);
       await this.optionService.insertBulk(topic.id, command.options, em);
 
-      return this.topicService.findByIdWithOptions(topic.id, em);
+      return this.topicService.findByIdWithOptionsOrThrow(topic.id, em);
     });
   }
 }
