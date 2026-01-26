@@ -1,5 +1,5 @@
-import { Module, ValidationPipe } from '@nestjs/common';
-import { APP_PIPE } from '@nestjs/core';
+import { Module } from '@nestjs/common';
+import { APP_FILTER, APP_PIPE } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { Configuration, ConfigurationModule } from '@core/configs';
@@ -8,6 +8,8 @@ import { TopicHttpModule } from '@features/topic/application';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { VALIDATION_PIPE } from '@core/pipes';
+import { HttpExceptionFilter } from '@core/filters';
 
 @Module({
   imports: [
@@ -31,13 +33,11 @@ import { AppService } from './app.service';
     AppService,
     {
       provide: APP_PIPE,
-      useFactory() {
-        return new ValidationPipe({
-          whitelist: true,
-          forbidNonWhitelisted: true,
-          transform: true,
-        });
-      },
+      useValue: VALIDATION_PIPE,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter,
     },
   ],
 })
