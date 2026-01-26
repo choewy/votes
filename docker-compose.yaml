@@ -1,0 +1,32 @@
+name: votes
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: votes-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - ../docker/votes/postgres/:/var/lib/postgresql/data
+    ports:
+      - 55419:5432
+    restart: unless-stopped
+    networks:
+      - votes
+
+  valkey:
+    image: valkey/valkey:latest
+    container_name: votes-valkey
+    volumes:
+      - ../docker/votes/valkey:/data
+    ports:
+      - 6375:6379
+    restart: unless-stopped
+    networks:
+      - votes
+
+networks:
+  votes:
+    driver: bridge
