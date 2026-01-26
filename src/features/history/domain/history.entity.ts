@@ -1,5 +1,5 @@
-import { OptionEntity, TopicEntity } from '@features/topic';
-import { UserEntity } from '@features/user';
+import { OptionEntity, TopicEntity } from '@features/topic/domain';
+import { UserEntity } from '@features/user/domain';
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 
 @Entity({ name: HistoryEntity.NAME })

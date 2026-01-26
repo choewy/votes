@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
-import { TransactionalService } from '@core';
+import { TransactionalService } from '@core/database';
 import { Repository } from 'typeorm';
 
 import { TopicEntity } from '../domain';
