@@ -1,17 +1,19 @@
 import { InjectQueue } from '@nestjs/bullmq';
+import { Injectable } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 
 import { Queue } from 'bullmq';
-import { Brackets, DataSource, In } from 'typeorm';
+import { DataSource } from 'typeorm';
 
-import { OutboxEventType, OutboxStatus } from './enums';
+import { OutboxEventType } from './enums';
 import { OutboxEntity } from './outbox.entity';
+import { OutboxService } from './outbox.service';
 
+@Injectable()
 export class OutboxDispatcher {
-  private readonly workerId = `dispatcher:${process.pid}`;
-
   constructor(
     private readonly dataSource: DataSource,
+    private readonly outboxService: OutboxService,
     @InjectQueue('topic')
     private readonly topicQueue: Queue,
   ) {}
@@ -19,28 +21,10 @@ export class OutboxDispatcher {
   @Cron('*/3 * * * * *')
   async dispatch(): Promise<void> {
     const events = await this.dataSource.transaction(async (em) => {
-      const repository = em.getRepository(OutboxEntity);
-      const rows = await repository
-        .createQueryBuilder('o')
-        .setLock('pessimistic_write')
-        .where('o.status = :pending', { pending: 'PENDING' })
-        .orWhere(new Brackets((qb) => qb.where('o.status = :processing', { processing: 'PROCESSING' }).andWhere('o.lockedUntil IS NOT NULL').andWhere('o.lockedUntil < NOW()')))
-        .orderBy('o.createdAt', 'ASC')
-        .limit(100)
-        .getMany();
+      const rows = await this.outboxService.findByDispatchTargets(em);
+      const rowsIds = rows.map((row) => row.id);
 
-      if (rows.length > 0) {
-        const ids = rows.map((r) => r.id);
-        await repository.update(
-          { id: In(ids) },
-          {
-            status: OutboxStatus.PROCESSING,
-            lockedBy: this.workerId,
-            lockedUntil: () => `NOW() + INTERVAL '5 seconds'`,
-            updatedAt: () => 'NOW()',
-          },
-        );
-      }
+      await this.outboxService.markProcessingMany(rowsIds, em);
 
       return rows;
     });
@@ -61,31 +45,10 @@ export class OutboxDispatcher {
         });
       }
 
-      await this.dataSource.getRepository(OutboxEntity).update(
-        { id: event.id },
-        {
-          status: OutboxStatus.PUBLISHED,
-          lockedBy: null,
-          lockedUntil: null,
-          lastError: null,
-          lastAttemptAt: () => 'NOW()',
-          updatedAt: () => 'NOW()',
-        },
-      );
+      await this.outboxService.markPublished(event.id);
     } catch (e) {
-      const message = e instanceof Error ? e.message : String(e);
-      await this.dataSource.getRepository(OutboxEntity).update(
-        { id: event.id },
-        {
-          status: OutboxStatus.PENDING,
-          lockedBy: null,
-          lockedUntil: null,
-          lastError: message,
-          attempts: () => 'attempts + 1',
-          lastAttemptAt: () => 'NOW()',
-          updatedAt: () => 'NOW()',
-        },
-      );
+      const error = e instanceof Error ? e.message : String(e);
+      await this.outboxService.markFailed(event.id, error);
     }
   }
 }
