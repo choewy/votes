@@ -35,6 +35,7 @@ export class TopicService extends TransactionalService<TopicEntity> {
     const topic = await this.getRepository(em).findOne({
       relations: { options: true },
       where: { id },
+      order: { options: { id: 'ASC' } },
     });
 
     if (!topic) {
