@@ -21,8 +21,6 @@ export class TopicParticipantProcessor extends WorkerHost {
     await this.dataSource.transaction(async (em) => {
       const history = await this.historyService.setIsCounted(job.data.historyId, em);
 
-      console.log({ history });
-
       if (history) {
         await this.optionService.increment(history.optionId, em);
         await this.topicService.increment(history.topicId, em);
