@@ -22,12 +22,20 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@core": ["src/core"],
-      "@core/*": ["src/core/*"],
-      "@features": ["src/features"],
-      "@features/*": ["src/features/*"],
-      "@application": ["src/application"],
-      "@application/*": ["src/application/*"]
+      "@apps/api": ["apps/api/src"],
+      "@apps/api/*": ["apps/api/src/*"],
+      "@apps/scheduler": ["apps/scheduler/src"],
+      "@apps/scheduler/*": ["apps/scheduler/src/*"],
+      "@apps/worker": ["apps/worker/src"],
+      "@apps/worker/*": ["apps/worker/src/*"],
+      "@libs/application": ["libs/application/src"],
+      "@libs/application/*": ["libs/application/src/*"],
+      "@libs/core": ["libs/core/src"],
+      "@libs/core/*": ["libs/core/src/*"],
+      "@libs/domain": ["libs/domain/src"],
+      "@libs/domain/*": ["libs/domain/src/*"],
+      "@libs/features": ["libs/features/src"],
+      "@libs/features/*": ["libs/features/src/*"]
     }
   }
 }

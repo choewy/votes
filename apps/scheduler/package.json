@@ -1,0 +1,9 @@
+{
+  "name": "@votes/scheduler",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "env-cmd -f ../../.env -f .env pnpm -C ../../ exec nest start scheduler --watch",
+    "build": "pnpm -C ../../ exec nest build scheduler",
+    "start": "node ../../dist/apps/scheduler/src/main"
+  }
+}

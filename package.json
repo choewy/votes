@@ -5,20 +5,30 @@
   "author": "",
   "private": true,
   "license": "UNLICENSED",
+  "workspaces": [
+    "apps/*"
+  ],
   "scripts": {
     "prepare": "node scripts/prepare",
     "build": "nest build",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "start": "nest start",
-    "dev": "nest start --watch",
-    "debug": "nest start --debug --watch",
-    "prod": "node dist/main",
+    "dev": "concurrently -n api,worker,scheduler -c auto \"pnpm api:dev\" \"pnpm worker:dev\" \"pnpm scheduler:dev\"",
+    "api:dev": "pnpm --filter @votes/api run dev",
+    "api:build": "pnpm --filter @votes/api run build",
+    "api:start": "pnpm --filter @votes/api run start",
+    "worker:dev": "pnpm --filter @votes/worker run dev",
+    "worker:build": "pnpm --filter @votes/worker run build",
+    "worker:start": "pnpm --filter @votes/worker run start",
+    "scheduler:dev": "pnpm --filter @votes/scheduler run dev",
+    "scheduler:build": "pnpm --filter @votes/scheduler run build",
+    "scheduler:start": "pnpm --filter @votes/scheduler run start",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./apps/votes/test/jest-e2e.json"
   },
   "dependencies": {
     "@nestjs/bullmq": "^11.0.4",
@@ -58,6 +68,8 @@
     "@types/passport-jwt": "^4.0.1",
     "@types/supertest": "^6.0.2",
     "bcrypt": "^6.0.0",
+    "concurrently": "^9.2.1",
+    "env-cmd": "^11.0.0",
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.2",
@@ -85,7 +97,7 @@
       "json",
       "ts"
     ],
-    "rootDir": "src",
+    "rootDir": ".",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
@@ -93,7 +105,17 @@
     "collectCoverageFrom": [
       "**/*.(t|j)s"
     ],
-    "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "coverageDirectory": "./coverage",
+    "testEnvironment": "node",
+    "roots": [
+      "<rootDir>/apps/",
+      "<rootDir>/libs/"
+    ],
+    "moduleNameMapper": {
+      "^@libs/application(|/.*)$": "<rootDir>/libs/application/src/$1",
+      "^@libs/core(|/.*)$": "<rootDir>/libs/core/src/$1",
+      "^@libs/domain(|/.*)$": "<rootDir>/libs/domain/src/$1",
+      "^@libs/features(|/.*)$": "<rootDir>/libs/features/src/$1"
+    }
   }
 }
