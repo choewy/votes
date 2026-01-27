@@ -20,6 +20,10 @@ export class LoginUseCase {
       throw new InvalidEmailOrPasswordException();
     }
 
+    if (!this.authService.comparePassword(command.password, user.password)) {
+      throw new InvalidEmailOrPasswordException();
+    }
+
     return this.authService.issueToken(user);
   }
 }

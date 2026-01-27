@@ -14,7 +14,9 @@ export class RegisterUseCase {
 
   async execute(command: RegisterCommand) {
     await this.userService.throwIfHasByEmail(command.email);
-    const user = await this.userService.insert(command.email, command.name, this.authService.hashPassword(command.password));
+
+    const hashedPassword = this.authService.hashPassword(command.password);
+    const user = await this.userService.insert(command.email, command.name, hashedPassword);
 
     return this.authService.issueToken(user);
   }

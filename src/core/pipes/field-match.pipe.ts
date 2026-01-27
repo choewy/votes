@@ -29,15 +29,11 @@ export class FieldMatchPipe<T> implements PipeTransform {
       const errors: ValidationError[] = [
         {
           property: key1,
-          constraints: {
-            [this.errorCode]: `${key1} and ${key2} do not match`,
-          },
+          constraints: { [this.errorCode]: `${key1} and ${key2} do not match` },
         },
         {
           property: key2,
-          constraints: {
-            [this.errorCode]: `${key1} and ${key2} do not match`,
-          },
+          constraints: { [this.errorCode]: `${key1} and ${key2} do not match` },
         },
       ];
 

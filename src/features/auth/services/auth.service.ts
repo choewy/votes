@@ -29,4 +29,8 @@ export class AuthService {
   hashPassword(password: string) {
     return bcrypt.hashSync(password, 10);
   }
+
+  comparePassword(password: string, hashedPassword: string) {
+    return bcrypt.compareSync(password, hashedPassword);
+  }
 }
