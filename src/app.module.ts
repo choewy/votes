@@ -1,6 +1,6 @@
 import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
-import { APP_FILTER, APP_PIPE } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_PIPE } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { Configuration, ConfigurationModule } from '@core/configs';
@@ -9,10 +9,10 @@ import { HttpExceptionFilter } from '@core/filters';
 import { OutboxCoreModule } from '@core/outbox';
 import { VALIDATION_PIPE } from '@core/pipes';
 import { RedisModule } from '@core/redis';
+import { AuthHttpModule } from '@features/auth/application';
+import { JwtAuthGuard } from '@features/auth/guards';
+import { HealthHttpModule } from '@features/health/application';
 import { TopicHttpModule } from '@features/topic/application';
-
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 
 @Module({
   imports: [
@@ -39,11 +39,11 @@ import { AppService } from './app.service';
       },
     }),
     OutboxCoreModule,
+    HealthHttpModule,
+    AuthHttpModule,
     TopicHttpModule,
   ],
-  controllers: [AppController],
   providers: [
-    AppService,
     {
       provide: APP_PIPE,
       useValue: VALIDATION_PIPE,
@@ -51,6 +51,10 @@ import { AppService } from './app.service';
     {
       provide: APP_FILTER,
       useClass: HttpExceptionFilter,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
     },
   ],
 })

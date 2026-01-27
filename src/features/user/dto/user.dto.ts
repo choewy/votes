@@ -2,13 +2,13 @@ import { UserEntity } from '../domain';
 
 export class UserDTO {
   id: string;
-  username: string;
+  email: string;
   createdAt: Date;
   updatedAt: Date;
 
   constructor(e: UserEntity) {
     this.id = e.id;
-    this.username = e.username;
+    this.email = e.email;
     this.createdAt = e.createdAt;
     this.updatedAt = e.updatedAt;
   }

@@ -5,6 +5,7 @@ import { CreateTopicUseCase, ParticipateTopicUseCase } from '@application/topic/
 import { ContextService } from '@core/context';
 import { Serialize } from '@core/interceptors';
 import { ParseIntStringPipe } from '@core/pipes';
+import { JwtRequestUser } from '@features/auth/strategies/types';
 
 import { CreateTopicRequestDTO, ParticipateTopicRequestDTO, TopicResponseDTO } from '../dto';
 import { TopicService } from '../services';
@@ -12,7 +13,7 @@ import { TopicService } from '../services';
 @Controller('topics')
 export class TopicController {
   constructor(
-    private readonly contextService: ContextService,
+    private readonly contextService: ContextService<JwtRequestUser>,
     private readonly topicService: TopicService,
     private readonly createTopicUseCase: CreateTopicUseCase,
     private readonly participateTopicUseCase: ParticipateTopicUseCase,
@@ -40,7 +41,7 @@ export class TopicController {
   @ApiNoContentResponse()
   participateTopic(@Param('id', new ParseIntStringPipe()) id: string, @Body() body: ParticipateTopicRequestDTO) {
     return this.participateTopicUseCase.execute({
-      userId: this.contextService.id,
+      userId: this.contextService.user.id,
       topicId: id,
       optionId: body.optionId,
     });

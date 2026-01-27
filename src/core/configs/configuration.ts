@@ -4,6 +4,7 @@ import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 
 import path from 'node:path';
 import { RedisModuleOptions } from '@core/redis';
+import { ExtractJwt, WithSecretOrKey } from 'passport-jwt';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 
 import { NodeEnv } from './enums';
@@ -43,6 +44,13 @@ export class Configuration {
     return {
       host: this.configService.getOrThrow<string>('REDIS_HOST'),
       port: +this.configService.getOrThrow<string>('REDIS_PORT'),
+    };
+  }
+
+  get passportJwtStrategyOptions(): WithSecretOrKey {
+    return {
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      secretOrKey: this.configService.getOrThrow<string>('JWT_SECRET'),
     };
   }
 }
