@@ -7,6 +7,10 @@ import { TopicOptionResponseDTO } from './topic-option.response.dto';
 export class TopicResponseDTO {
   @ApiProperty({ type: String })
   @Expose()
+  id: string;
+
+  @ApiProperty({ type: String })
+  @Expose()
   title: string;
 
   @ApiProperty({ type: TopicOptionResponseDTO, isArray: true })

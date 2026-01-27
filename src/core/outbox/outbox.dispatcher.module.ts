@@ -8,7 +8,7 @@ import { OutboxEntity } from './outbox.entity';
 import { OutboxService } from './outbox.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([OutboxEntity]), ScheduleModule.forRoot(), BullModule.registerQueue({ name: 'topic' })],
+  imports: [TypeOrmModule.forFeature([OutboxEntity]), ScheduleModule.forRoot(), BullModule.registerQueue({ name: 'topic.participant' })],
   providers: [OutboxService, OutboxDispatcher],
   exports: [OutboxService],
 })

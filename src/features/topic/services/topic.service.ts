@@ -42,4 +42,14 @@ export class TopicService extends TransactionalService<TopicEntity> {
 
     return topic;
   }
+
+  async increment(id: string, em?: EntityManager) {
+    return this.getRepository(em).update(
+      { id },
+      {
+        total: () => `total + 1`,
+        updatedAt: () => 'NOW()',
+      },
+    );
+  }
 }

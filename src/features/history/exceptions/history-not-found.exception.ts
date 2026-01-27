@@ -4,9 +4,10 @@ import { DomainException } from '@core/exceptions';
 
 export class HistoryNotFoundException extends DomainException {
   constructor(
-    public readonly userId: string,
-    public readonly topicId: string,
+    public readonly historyId?: string,
+    public readonly userId?: string,
+    public readonly topicId?: string,
   ) {
-    super('HISTORY_NOT_FOUND', HttpStatus.NOT_FOUND, 'History not found', { userId, topicId });
+    super('HISTORY_NOT_FOUND', HttpStatus.NOT_FOUND, 'History not found', { historyId, userId, topicId });
   }
 }

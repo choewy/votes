@@ -17,8 +17,8 @@ export class OutboxDispatcher {
   constructor(
     private readonly dataSource: DataSource,
     private readonly outboxService: OutboxService,
-    @InjectQueue('topic')
-    private readonly topicQueue: Queue,
+    @InjectQueue('topic.participant')
+    private readonly topicParticipantQueue: Queue,
   ) {}
 
   @Cron('*/3 * * * * *')
@@ -43,8 +43,8 @@ export class OutboxDispatcher {
   private async publish(event: OutboxEntity) {
     try {
       if (event.eventType === OutboxEventType.TOPIC_PARTICIPATED) {
-        await this.topicQueue.add('participate', event.payload, {
-          jobId: `outbox:${event.id}`,
+        await this.topicParticipantQueue.add('participant', event.payload, {
+          jobId: `topic:participant:${event.id}`,
           removeOnComplete: true,
           attempts: 5,
           backoff: { type: 'exponential', delay: 1000 },

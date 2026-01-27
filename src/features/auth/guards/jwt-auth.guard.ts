@@ -52,6 +52,6 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 
     const u = user as Record<string, unknown>;
 
-    return typeof u.id === 'string' && Array.isArray(u.roles) && u.roles.every((r) => typeof r === 'string');
+    return typeof u.id === 'string' && typeof u.email === 'string';
   }
 }

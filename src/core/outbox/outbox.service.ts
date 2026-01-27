@@ -113,7 +113,7 @@ export class OutboxService extends TransactionalService<OutboxEntity> {
 
   async markPublished(id: string, lockedBy: string, em?: EntityManager) {
     await this.getRepository(em).update(
-      { id, lockedBy },
+      { id, status: OutboxStatus.PROCESSING, lockedBy },
       {
         status: OutboxStatus.PUBLISHED,
         lockedBy: null,
@@ -127,7 +127,7 @@ export class OutboxService extends TransactionalService<OutboxEntity> {
 
   async markFailed(id: string, lockedBy: string, error: string, em?: EntityManager) {
     await this.getRepository(em).update(
-      { id, lockedBy },
+      { id, status: OutboxStatus.PROCESSING, lockedBy },
       {
         status: OutboxStatus.PENDING,
         lockedBy: null,

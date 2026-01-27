@@ -39,4 +39,14 @@ export class OptionService extends TransactionalService<OptionEntity> {
 
     return option;
   }
+
+  async increment(id: string, em?: EntityManager) {
+    return this.getRepository(em).update(
+      { id },
+      {
+        count: () => `count + 1`,
+        updatedAt: () => 'NOW()',
+      },
+    );
+  }
 }

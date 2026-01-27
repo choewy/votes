@@ -9,6 +9,9 @@ export class TopicEntity {
   @PrimaryGeneratedColumn({ type: 'bigint', primaryKeyConstraintName: 'TOPIC_PK' })
   readonly id: string;
 
+  @Column({ type: 'int', unsigned: true, default: 0 })
+  total: number;
+
   @Column({ type: 'varchar', length: 500 })
   title: string;
 
