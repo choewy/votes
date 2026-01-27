@@ -1,5 +1,5 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post } from '@nestjs/common';
-import { ApiCreatedResponse, ApiNoContentResponse, ApiOkResponse } from '@nestjs/swagger';
+import { ApiCreatedResponse, ApiNoContentResponse, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 
 import { CreateTopicUseCase, ParticipateTopicUseCase } from '@libs/application';
 import { ContextService, ParseIntStringPipe, Serialize } from '@libs/core';
@@ -18,6 +18,7 @@ export class TopicController {
 
   @Get(':id')
   @Serialize(TopicResponseDTO)
+  @ApiOperation({ summary: '투표 주제 조회' })
   @ApiOkResponse({ type: TopicResponseDTO })
   getTopic(@Param('id', new ParseIntStringPipe()) id: string) {
     return this.topicService.findByIdWithOptionsOrThrow(id);
@@ -25,9 +26,11 @@ export class TopicController {
 
   @Post()
   @Serialize(TopicResponseDTO)
+  @ApiOperation({ summary: '투표 주제 생성' })
   @ApiCreatedResponse({ type: TopicResponseDTO })
   createTopic(@Body() body: CreateTopicRequestDTO) {
     return this.createTopicUseCase.execute({
+      userId: this.contextService.user.id,
       title: body.title,
       options: body.options.map(({ value }) => value),
     });
@@ -35,6 +38,7 @@ export class TopicController {
 
   @Post(':id/participate')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: '투표 옵션 선택(참여)' })
   @ApiNoContentResponse()
   participateTopic(@Param('id', new ParseIntStringPipe()) id: string, @Body() body: ParticipateTopicRequestDTO) {
     return this.participateTopicUseCase.execute({
@@ -46,9 +50,11 @@ export class TopicController {
 
   @Patch(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: '투표 내용 변경' })
   @ApiNoContentResponse()
   updateTopic(@Param('id', new ParseIntStringPipe()) id: string) {
-    // TODO
+    // TODO topic.userId !== this.contextService.user.id인 경우 수정 불가
+    // TODO topic.total > 0인 경우 수정 불가
     return id;
   }
 }

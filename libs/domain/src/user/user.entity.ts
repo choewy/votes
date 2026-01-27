@@ -1,4 +1,6 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, Unique, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, Unique, UpdateDateColumn } from 'typeorm';
+
+import { TopicEntity } from '../topic';
 
 @Entity({ name: UserEntity.NAME })
 @Unique('USER_EMAIL_UNIQUE_KEY', ['email'])
@@ -22,4 +24,7 @@ export class UserEntity {
 
   @UpdateDateColumn({ type: 'timestamptz' })
   readonly updatedAt: Date;
+
+  @OneToMany(() => TopicEntity, (e) => e.user, { cascade: true })
+  topics: TopicEntity[];
 }

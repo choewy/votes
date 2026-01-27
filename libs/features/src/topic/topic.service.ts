@@ -17,8 +17,8 @@ export class TopicService extends TransactionalService<TopicEntity> {
     super(topicRepository);
   }
 
-  async insert(title: string, em?: EntityManager) {
-    return this.getRepository(em).save({ title });
+  async insert(userId: string, title: string, em?: EntityManager) {
+    return this.getRepository(em).save({ userId, title });
   }
 
   async findByIdOrThrow(id: string, em?: EntityManager) {

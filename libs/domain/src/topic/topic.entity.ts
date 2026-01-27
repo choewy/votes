@@ -1,4 +1,6 @@
-import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+
+import { UserEntity } from '../user';
 
 import { OptionEntity } from './option.entity';
 
@@ -20,6 +22,13 @@ export class TopicEntity {
 
   @UpdateDateColumn({ type: 'timestamptz' })
   readonly updatedAt: Date;
+
+  @Column({ type: 'bigint' })
+  userId: string;
+
+  @ManyToOne(() => UserEntity, (e) => e.topics, { onDelete: 'CASCADE' })
+  @JoinColumn({ foreignKeyConstraintName: 'TOPIC_USER_FK' })
+  user: UserEntity;
 
   @OneToMany(() => OptionEntity, (e) => e.topic, { cascade: true })
   options: OptionEntity[];
