@@ -1,2 +1,2 @@
-export * from './topic-not-found.exception';
+export * from './invalid-email-or-password.exception';
 export * from './invalid-token.exception';

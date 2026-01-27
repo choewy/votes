@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { JwtModuleOptions } from '@nestjs/jwt';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 
 import path from 'node:path';
@@ -44,6 +45,13 @@ export class Configuration {
     return {
       host: this.configService.getOrThrow<string>('REDIS_HOST'),
       port: +this.configService.getOrThrow<string>('REDIS_PORT'),
+    };
+  }
+
+  get jwtModuleOptions(): JwtModuleOptions {
+    return {
+      secret: this.configService.getOrThrow<string>('JWT_SECRET'),
+      signOptions: this.isLocal ? undefined : { expiresIn: '10m' },
     };
   }
 

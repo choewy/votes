@@ -5,7 +5,7 @@ import { TransactionalService } from '@core/database';
 import { EntityManager, Repository } from 'typeorm';
 
 import { UserEntity } from '../domain';
-import { UserNotFoundException } from '../exceptions';
+import { UserAlreadyExistEmailException, UserNotFoundException } from '../exceptions';
 
 @Injectable()
 export class UserService extends TransactionalService<UserEntity> {
@@ -24,5 +24,27 @@ export class UserService extends TransactionalService<UserEntity> {
     }
 
     return user;
+  }
+
+  async findByEmail(email: string, em?: EntityManager) {
+    return this.getRepository(em).findOneBy({ email });
+  }
+
+  async throwIfHasByEmail(email: string, em?: EntityManager) {
+    if (await this.getRepository(em).existsBy({ email })) {
+      throw new UserAlreadyExistEmailException(email);
+    }
+  }
+
+  async insert(email: string, name: string, hashedPassword: string, em?: EntityManager) {
+    const repository = this.getRepository(em);
+
+    return repository.save(
+      repository.create({
+        email,
+        name,
+        password: hashedPassword,
+      }),
+    );
   }
 }
