@@ -13,6 +13,10 @@ export class TopicResponseDTO {
   @Expose()
   title: string;
 
+  @ApiProperty({ type: String })
+  @Expose()
+  content: string;
+
   @ApiProperty({ type: TopicOptionResponseDTO, isArray: true })
   @Type(() => TopicOptionResponseDTO)
   @Expose()

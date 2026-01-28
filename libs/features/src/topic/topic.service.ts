@@ -17,12 +17,25 @@ export class TopicService extends TransactionalService<TopicEntity> {
     super(topicRepository);
   }
 
-  async insert(userId: string, title: string, em?: EntityManager) {
-    return this.getRepository(em).save({ userId, title });
+  async insert(userId: string, title: string, content: string, em?: EntityManager) {
+    const repository = this.getRepository(em);
+    const topic = repository.create({ userId, title, content });
+    return repository.save(topic);
   }
 
-  async findByIdOrThrow(id: string, em?: EntityManager) {
-    const topic = await this.getRepository(em).findOneBy({ id });
+  async update(id: string, title: string, content: string, em?: EntityManager) {
+    return this.getRepository(em).update(id, {
+      title,
+      content,
+      updatedAt: () => 'NOW()',
+    });
+  }
+
+  async findByIdOrThrow(id: string, em?: EntityManager, lock?: boolean) {
+    const topic = await this.getRepository(em).findOne({
+      where: { id },
+      lock: lock ? { mode: 'pessimistic_write' } : undefined,
+    });
 
     if (!topic) {
       throw new TopicNotFoundException(id);

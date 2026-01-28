@@ -17,6 +17,9 @@ export class TopicEntity {
   @Column({ type: 'varchar', length: 500 })
   title: string;
 
+  @Column({ type: 'text' })
+  content: string;
+
   @CreateDateColumn({ type: 'timestamptz' })
   readonly createdAt: Date;
 

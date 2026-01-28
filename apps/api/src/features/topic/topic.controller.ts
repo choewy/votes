@@ -1,11 +1,11 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post } from '@nestjs/common';
 import { ApiCreatedResponse, ApiNoContentResponse, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 
-import { CreateTopicUseCase, ParticipateTopicUseCase } from '@libs/application';
+import { CreateTopicUseCase, ParticipateTopicUseCase, UpdateTopicUseCase } from '@libs/application';
 import { ContextService, ParseIntStringPipe, Serialize } from '@libs/core';
 import { JwtRequestUser, TopicService } from '@libs/features';
 
-import { CreateTopicRequestDTO, ParticipateTopicRequestDTO, TopicResponseDTO } from './dto';
+import { CreateTopicRequestDTO, ParticipateTopicRequestDTO, TopicResponseDTO, UpdateTopicRequestDTO } from './dto';
 
 @Controller('topics')
 export class TopicController {
@@ -13,6 +13,7 @@ export class TopicController {
     private readonly contextService: ContextService<JwtRequestUser>,
     private readonly topicService: TopicService,
     private readonly createTopicUseCase: CreateTopicUseCase,
+    private readonly updateTopicUseCase: UpdateTopicUseCase,
     private readonly participateTopicUseCase: ParticipateTopicUseCase,
   ) {}
 
@@ -32,6 +33,21 @@ export class TopicController {
     return this.createTopicUseCase.execute({
       userId: this.contextService.user.id,
       title: body.title,
+      content: body.content,
+      options: body.options.map(({ value }) => value),
+    });
+  }
+
+  @Patch(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: '투표 내용 변경' })
+  @ApiNoContentResponse()
+  updateTopic(@Param('id', new ParseIntStringPipe()) id: string, @Body() body: UpdateTopicRequestDTO) {
+    return this.updateTopicUseCase.execute({
+      userId: this.contextService.user.id,
+      topicId: id,
+      title: body.title,
+      content: body.content,
       options: body.options.map(({ value }) => value),
     });
   }
@@ -46,15 +62,5 @@ export class TopicController {
       topicId: id,
       optionId: body.optionId,
     });
-  }
-
-  @Patch(':id')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: '투표 내용 변경' })
-  @ApiNoContentResponse()
-  updateTopic(@Param('id', new ParseIntStringPipe()) id: string) {
-    // TODO topic.userId !== this.contextService.user.id인 경우 수정 불가
-    // TODO topic.total > 0인 경우 수정 불가
-    return id;
   }
 }

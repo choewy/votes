@@ -21,6 +21,12 @@ export class OptionService extends TransactionalService<OptionEntity> {
     return this.getRepository(em).save(values.map((value) => ({ value, topicId })));
   }
 
+  async reset(topicId: string, values: string[], em?: EntityManager) {
+    const repository = this.getRepository(em);
+    await repository.delete({ topicId });
+    await repository.save(values.map((value) => ({ value, topicId })));
+  }
+
   async findByIdOrThrow(id: string, em?: EntityManager) {
     const option = await this.getRepository(em).findOneBy({ id });
 
