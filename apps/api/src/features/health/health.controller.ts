@@ -1,16 +1,18 @@
 import { Controller, Get } from '@nestjs/common';
-import { ApiOkResponse } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { Serialize } from '@libs/core';
 import { Public } from '@libs/features';
 
 import { HealthResponseDTO } from './dto';
 
+@ApiTags('헬스')
 @Public()
 @Controller()
 export class HealthController {
   @Get()
   @Serialize(HealthResponseDTO)
+  @ApiOperation({ summary: '헬스체크', security: [] })
   @ApiOkResponse({ type: HealthResponseDTO })
   healthCheck() {
     return {

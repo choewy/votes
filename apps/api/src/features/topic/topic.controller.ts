@@ -1,5 +1,5 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post } from '@nestjs/common';
-import { ApiCreatedResponse, ApiNoContentResponse, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
+import { ApiCreatedResponse, ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { CreateTopicUseCase, ParticipateTopicUseCase, UpdateTopicUseCase } from '@libs/application';
 import { ContextService, ParseIntStringPipe, Serialize } from '@libs/core';
@@ -7,6 +7,7 @@ import { JwtRequestUser, TopicService } from '@libs/features';
 
 import { CreateTopicRequestDTO, ParticipateTopicRequestDTO, TopicResponseDTO, UpdateTopicRequestDTO } from './dto';
 
+@ApiTags('투표 주제')
 @Controller('topics')
 export class TopicController {
   constructor(

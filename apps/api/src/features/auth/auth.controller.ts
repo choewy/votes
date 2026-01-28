@@ -1,5 +1,5 @@
 import { Body, Controller, Post, UsePipes } from '@nestjs/common';
-import { ApiCreatedResponse } from '@nestjs/swagger';
+import { ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { LoginUseCase, RegisterUseCase } from '@libs/application';
 import { FieldMatchPipe } from '@libs/core';
@@ -7,6 +7,7 @@ import { Public } from '@libs/features';
 
 import { LoginRequestDTO, RegisterRequestDTO, TokenResponseDTO } from './dto';
 
+@ApiTags('인증')
 @Public()
 @Controller('auth')
 export class AuthController {
@@ -17,6 +18,7 @@ export class AuthController {
 
   @Post('register')
   @UsePipes(new FieldMatchPipe<RegisterRequestDTO>('password', 'confirmPassword'))
+  @ApiOperation({ summary: '회원가입', security: [] })
   @ApiCreatedResponse({ type: TokenResponseDTO })
   register(@Body() body: RegisterRequestDTO) {
     return this.registerUseCase.execute({
@@ -27,6 +29,7 @@ export class AuthController {
   }
 
   @Post('login')
+  @ApiOperation({ summary: '로그인', security: [] })
   @ApiCreatedResponse({ type: TokenResponseDTO })
   login(@Body() body: LoginRequestDTO) {
     return this.loginUseCase.execute({
