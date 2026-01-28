@@ -17,6 +17,10 @@ export class TopicResponseDTO {
   @Expose()
   content: string;
 
+  @ApiProperty({ type: Number })
+  @Expose()
+  total: number;
+
   @ApiProperty({ type: TopicOptionResponseDTO, isArray: true })
   @Type(() => TopicOptionResponseDTO)
   @Expose()

@@ -1,3 +1,4 @@
+import { VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
@@ -7,8 +8,11 @@ import { ApiModule } from './api.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(ApiModule);
-  const configuration = app.get(Configuration);
 
+  app.setGlobalPrefix('api');
+  app.enableVersioning({ defaultVersion: '1', type: VersioningType.URI });
+
+  const configuration = app.get(Configuration);
   const builder = new DocumentBuilder()
     .setTitle(process.env.npm_package_name as string)
     .setVersion(process.env.npm_package_version as string)

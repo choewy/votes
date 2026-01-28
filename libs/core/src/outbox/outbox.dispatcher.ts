@@ -21,7 +21,7 @@ export class OutboxDispatcher {
     private readonly topicParticipantQueue: Queue,
   ) {}
 
-  @Cron('*/3 * * * * *')
+  @Cron('*/1 * * * * *')
   async dispatch(): Promise<void> {
     const events = await this.dataSource.transaction(async (em) => {
       const rows = await this.outboxService.findByDispatchTargets(100, em);
